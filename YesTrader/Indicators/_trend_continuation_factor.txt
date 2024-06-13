@@ -1,0 +1,20 @@
+//_Trend Continuation Factor
+
+input:period(35);
+var:change(0),pluschange(0),minuschange(0),pluscf(0),minuscf(0),plustcf(0),minustcf(0);
+
+//change=close-close[1];
+change=close/close[1]-1;
+
+pluschange=iff(0<change,change,0);
+minuschange=iff(0>change,-change,0);
+
+pluscf=iff(pluschange,pluschange+pluscf[1],0);
+minuscf=iff(minuschange,minuschange+minuscf[1],0);
+
+plustcf=accumn(pluschange-minuscf,period);
+minustcf=accumn(minuschange-pluscf,period);
+
+plot1(plustcf,"+",rgb(0,168,0));
+plot2(minustcf,"-",rgb(168,0,0));
+plotbaseline1(0,"0",rgb(87,87,87));
