@@ -1,0 +1,254 @@
+
+// _ZigZag
+
+input: InpDepth(12), InpDeviation(5), InpBackstep(3);
+vars : _InpDepth(iff(InpDepth, InpDepth, iff(3 < datacompress, 10, iff(3 > datacompress, 18, 12))));
+
+vars : Bars(300), i(0), limit(Bars - _InpDepth), counterZ(0), whatlookfor(0);
+vars : back(0), pos(0), lasthighpos(0), lastlowpos(0), ExtLevel(3);
+vars : extremum(0.0);
+vars : curlow(0.0), curhigh(0.0), lasthigh(0.0), lastlow(0.0);
+array: ZzBuffer[300](0.0), LoBuffer[300](0.0), HiBuffer[300](0.0);
+
+if (!index) then
+{
+   limit = Bars - _InpDepth;
+   for i = 0 to Bars - 1
+   {
+      ZzBuffer[i] = 0.0;
+      LoBuffer[i] = 0.0;
+      HiBuffer[i] = 0.0;
+   }
+}
+
+//--- find first extremum in the depth ExtLevel or 100 last bars
+i = 0;
+counterZ = 0;
+while (counterZ < ExtLevel && 100 > i)
+{
+   if (0.0 != ZzBuffer[i]) then counterZ = counterZ + 1;
+   i = i + 1;
+}
+
+//--- no extremum found - recounting all from begin
+if (!counterZ) then
+{
+   limit = Bars - _InpDepth;
+   for i = 0 to Bars - 1
+   {
+      ZzBuffer[i] = 0.0;
+      LoBuffer[i] = 0.0;
+      HiBuffer[i] = 0.0;
+   }
+}
+else
+{
+   //--- set start position to found extremum position
+   limit = i - 1;
+   //--- what kind of extremum?
+   if (0.0 != LoBuffer[i]) then
+   {
+      //--- low extremum
+      curlow = LoBuffer[i];
+      //--- will look for the next high extremum
+      whatlookfor = 1;
+   }
+   else
+   {
+      //--- high extremum
+      curhigh = HiBuffer[i];
+      //--- will look for the next low extremum
+      whatlookfor = -1;
+   }
+   //--- clear the rest data
+   // for (i = limit-1; 0 <= i; i--)
+   i = limit-1;
+   while (0 <= i)
+   {
+      ZzBuffer[i] = 0.0;
+      LoBuffer[i] = 0.0;
+      HiBuffer[i] = 0.0;
+      i = i - 1;
+   }
+}
+
+//--- main loop
+// for (i = limit; 0 <= i; i--)
+i = limit;
+while (0 <= i)
+{
+   //--- find lowest low in depth of bars
+   // extremum = low[iLowest(NULL, 0, MODE_LOW, _InpDepth, i)];
+   extremum = lowest(low, _InpDepth)[i];
+   //--- this lowest has been found previously
+   if (extremum == lastlow) then extremum = 0.0;
+   else
+   {
+      //--- new last low
+      lastlow = extremum;
+      //--- discard extremum if current low is too high
+      // if (low[i] - extremum > InpDeviation * Point) then extremum = 0.0;PriceScale
+      if (low[i] - extremum > InpDeviation * PriceScale) then extremum = 0.0;
+      else
+      {
+         //--- clear previous extremums in backstep bars
+         // for (back = 1; back <= InpBackstep; back++)
+         for back = 1 to InpBackstep
+         {
+            pos = i + back;
+            if (LoBuffer[pos] != 0 && LoBuffer[pos] > extremum) then LoBuffer[pos] = 0.0;
+         }
+      }
+   }
+   //--- found extremum is current low
+   if (low[i] == extremum) then LoBuffer[i] = extremum;
+   else LoBuffer[i] = 0.0;
+
+   //--- find highest high in depth of bars
+   // extremum = high[iHighest(NULL, 0, MODE_HIGH, _InpDepth, i)];
+   extremum = highest(high, _InpDepth)[i];
+   //--- this highest has been found previously
+   if (extremum == lasthigh) then extremum = 0.0;
+   else
+   {
+      //--- new last high
+      lasthigh = extremum;
+      //--- discard extremum if current high is too low
+      // if (extremum - high[i] > InpDeviation * Point) then extremum = 0.0;
+      if (extremum - high[i] > InpDeviation * PriceScale) then extremum = 0.0;
+      else
+      {
+         //--- clear previous extremums in backstep bars
+         for back = 1 to InpBackstep
+         {
+            pos = i + back;
+            if (HiBuffer[pos] != 0 && HiBuffer[pos] < extremum) then HiBuffer[pos] = 0.0;
+         }
+      }
+   }
+   //--- found extremum is current high
+   if (high[i] == extremum) then HiBuffer[i] = extremum;
+   else HiBuffer[i] = 0.0;
+
+   i = i - 1;
+}
+
+//--- final cutting
+if (whatlookfor == 0) then
+{
+   lastlow  = 0.0;
+   lasthigh = 0.0;
+}
+else
+{
+   lastlow  = curlow;
+   lasthigh = curhigh;
+}
+
+// for (i = limit; 0 <= i; i--)
+i = limit;
+while (0 <= i)
+{
+   // switch (whatlookfor)
+   // {
+   //    case 0: // look for peak or lawn
+   if (0 == whatlookfor) then
+   {
+      if (lastlow == 0.0 && lasthigh == 0.0) then
+      {
+         if (HiBuffer[i] != 0.0) then
+         {
+            lasthigh    = High[i];
+            lasthighpos = i;
+            whatlookfor = -1;
+            ZzBuffer[i] = lasthigh;
+         }
+         if (LoBuffer[i] != 0.0) then
+         {
+            lastlow     = Low[i];
+            lastlowpos  = i;
+            whatlookfor = 1;
+            ZzBuffer[i] = lastlow;
+         }
+      }
+   }
+   //    case 1: // look for peak
+   if (1 == whatlookfor) then
+   {
+      if (LoBuffer[i] != 0.0 && LoBuffer[i] < lastlow && HiBuffer[i] == 0.0) then
+      {
+         ZzBuffer[lastlowpos] = 0.0;
+         lastlowpos  = i;
+         lastlow     = LoBuffer[i];
+         ZzBuffer[i] = lastlow;
+      }
+      if (HiBuffer[i] != 0.0 && LoBuffer[i] == 0.0) then
+      {
+         lasthigh    = HiBuffer[i];
+         lasthighpos = i;
+         ZzBuffer[i] = lasthigh;
+         whatlookfor = -1;
+      }
+   }
+   //   case -1: // look for lawn
+   if (-1 == whatlookfor) then
+   {
+      if (HiBuffer[i] != 0.0 && HiBuffer[i] > lasthigh && LoBuffer[i] == 0.0) then
+      {
+         ZzBuffer[lasthighpos] = 0.0;
+         lasthighpos = i;
+         lasthigh    = HiBuffer[i];
+         ZzBuffer[i] = lasthigh;
+      }
+      if (LoBuffer[i] != 0.0 && HiBuffer[i] == 0.0) then
+      {
+         lastlow     = LoBuffer[i];
+         lastlowpos  = i;
+         ZzBuffer[i] = lastlow;
+         whatlookfor = 1;
+      }
+   }
+
+   i = i - 1;
+}
+
+vars  : previous(0), direction(0), j(0);
+array : zigzag[300](0);
+
+if Bars < index && 0 < ZzBuffer[0] then
+{
+
+   tl_delete(zigzag[0]);
+   previous = 0;
+   if 0 < HiBuffer[0] then previous = 1;
+   if 0 < LoBuffer[0] then previous = -1;
+   j = 0;
+   i = 1;
+   while (Bars > i)
+   {
+      tl_delete(zigzag[i]);
+      direction = 0;
+      if 0 < HiBuffer[0][i] then direction = 1;
+      if 0 < LoBuffer[0][i] then direction = -1;
+
+      if 0 < ZzBuffer[0][i] && 0 != direction && previous != direction then
+      {
+         zigzag[i] = tl_new(sdate[j], stime[j], ZzBuffer[0][j], sdate[i], stime[i], ZzBuffer[0][i]);
+         tl_setsize(zigzag[i], 0);
+         tl_setcolor(zigzag[i], rgb(139,69,19));
+         tl_setstyle(zigzag[i], 1);
+         tl_setextleft(zigzag[i], false);
+         tl_setextright(zigzag[i], false);
+
+         // MessageLog("%i , %i , %i , %f , %i , %i , %f", i, pre_date, pre_time, pre_value, date[i], time[i], ZzBuffer[i]);
+
+         j = i;
+         previous = direction;
+      }
+
+      i = i + 1;
+   }
+}
+
+plot1(iff(0 < HiBuffer[0], HiBuffer[0], iff(0 < LoBuffer[0], LoBuffer[0], NoValue())));
+// plot2(iff(0 < ZzBuffer[0], ZzBuffer[0], NoValue()));
