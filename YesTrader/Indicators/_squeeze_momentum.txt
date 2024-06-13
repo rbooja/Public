@@ -1,0 +1,33 @@
+input : BBLengh(20), KCLength(20), BBmult(2.0), KCmult(1.5);  
+var : basis(0), maV(0), dev(0), upperBB(0), lowerBB(0), Rangema(0), upperKC(0), lowerKC(0), LRLval(0), bcolor(0); 
+var : midLine(0), maLine(0), sqzOn(False), scolor(0);
+
+# 볼린져밴드 채널
+basis = ma(C, BBLengh);
+dev = BBmult * STD(C, BBLengh);
+upperBB = basis + dev;
+lowerBB = basis - dev;
+
+# 캘트너 채널
+maV = ma(C, KCLength);
+rangema = ma(range, KCLength);
+upperKC = mav + rangema * KCmult;
+lowerKC = mav - rangema * KCmult;
+
+# 돈키언 채널 및 선형회귀 평활
+midLine = (highest(H, KCLength)+lowest(L, KCLength)) / 2;
+maLine = Close - (midLine+maV) / 2;
+LRLval = LRL(maLine , KCLength);
+
+# 막대그래프
+bcolor = iff( LRLval > 0,iff( LRLval > LRLval[1], RGB(0,128,0), RGB(0,89,0)),
+            iff( LRLval < LRLval[1], RGB(128,0,0), RGB(89,0,0)));
+plot1(LRLval,"LRLval",bcolor,0,0);
+
+# 중심선 십자 그래프
+sqzOn  = (lowerBB > lowerKC) and (upperBB < upperKC);
+if sqzOn == true Then
+	scolor = RGB(89,89,89);
+Else
+	scolor = RGB(178,106,34);
+plot2(0,"sqzOn",scolor);
