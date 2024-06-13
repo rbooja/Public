@@ -1,0 +1,43 @@
+윈도우 파워쉘(Windows Powershell) 관리자 권한
+
+알람, 시계(Alarm and Clock)
+Get-AppxPackage *windowsalarms* | Remove-AppxPackage
+ 
+계산기(Calculator)
+Get-AppxPackage *windowscalculator* | Remove-AppxPackage
+ 
+달력 및 메일(Calendar and Mail)
+Get-AppxPackage *windowscommunicationsapps* | Remove-AppxPackage
+ 
+카메라(Camera)
+Get-AppxPackage *windowscamera* | Remove-AppxPackage
+ 
+그루브 음악(Groove Music)
+Get-AppxPackage *zunemusic* | Remove-AppxPackage
+ 
+지도(Maps)
+Get-AppxPackage *windowsmaps* | Remove-AppxPackage
+ 
+Microsoft Solitaire Collection
+Get-AppxPackage *solitairecollection* | Remove-AppxPackage
+ 
+영화, TV(Movies and TV)
+Get-AppxPackage *zunevideo* | Remove-AppxPackage
+ 
+피플(People)
+Get-AppxPackage *people* | Remove-AppxPackage
+ 
+윈도우폰(Windows Phone)
+Get-AppxPackage *windowsphone* | Remove-AppxPackage
+ 
+사진(Photos)
+Get-AppxPackage *photos* | Remove-AppxPackage
+ 
+스토어(WIndows Store)
+Get-AppxPackage *windowsstore* | Remove-AppxPackage
+ 
+녹음기(Sound Recorder)
+Get-AppxPackage *soundrecorder* | Remove-AppxPackage
+ 
+XBOX
+Get-AppxPackage *xboxapp* | Remove-AppxPackage
