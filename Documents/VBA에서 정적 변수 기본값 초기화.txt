@@ -1,0 +1,19 @@
+One way to do this if you want to keep the static semantics and not switch to a global is to sniff the default value and then set the initial condition:
+
+Static i As Integer
+if (i = 0) then i = 5
+Safer alternative would perhaps be
+
+Static i As Variant
+if isempty(i) then i = 5
+Or
+
+Public Sub foo(optional init as boolean = false)
+    Static i As Integer
+    if init then
+      i = 5
+      exit sub
+    endif
+You could probably also create a class with a default property and use class_initialize but that's probably a bit over-fussy.
+
+https://www.appsloveworld.com/vba/100/8/initializing-a-static-variable-in-vba-with-non-default-value
