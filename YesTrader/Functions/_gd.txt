@@ -1,0 +1,8 @@
+
+input: price(numeric), period(numeric), vfactor(numeric);
+var  : X1(0), X2(0);
+
+X1 = ema(price, period) * (1 + vfactor);
+X2 = ema(ema(price, period), period) * vfactor;
+
+_GD = X1 - X2;
