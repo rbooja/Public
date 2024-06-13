@@ -1,0 +1,3 @@
+bcdedit /set {default} bootmenupolicy legacy
+
+* 위에 내용을 복사한 뒤 붙여넣기 하세요 :)
