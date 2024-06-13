@@ -1,0 +1,14 @@
+
+// 주간: period(50일) 내에 length(200일) 신고가 발생
+
+input: period(10),length(40);
+
+// if 0 < accumn(iff(high >= nthhighest(1,high,length), 1, 0), period) then var10=1;
+// var1 = accumn(iff(high >= nthhighest(1,high,length), 1, 0), period);
+// if 1 <= var1 then var10=1;
+
+value1 = 0;
+
+if highest(high, period) == highest(high, length) then value1 = 1;
+
+find(value1);
