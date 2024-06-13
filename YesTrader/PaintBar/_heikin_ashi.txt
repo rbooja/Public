@@ -1,0 +1,10 @@
+
+vars : dopen(0), dhigh(0), dlow(0), dclose(0), color(0);
+
+dopen  = iff(index, avg(dopen[1], dclose[1]), open);
+dclose = avg(open, high, low, close);
+dhigh  = maxlist(high, dopen, dclose);
+dlow   = minlist( low, dopen, dclose);
+color  = iff(dopen < dclose, green, iff(dopen > dclose, rgb(178, 106, 34), color[1]));
+
+plotpaintbar(dhigh, dlow, dopen, dclose, "ha", color);
