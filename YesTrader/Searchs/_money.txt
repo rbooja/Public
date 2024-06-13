@@ -1,0 +1,12 @@
+input: period(10), length(5);
+
+value1 = iff(period, period, 10);
+value2 = iff(length, length, 5);
+
+value10 = 100000000 * value1; // 거래대금 단위 1억
+value11 = max(money, money[1], ma(money, value2));
+
+if value10 < value11 then value99 = 1;
+else value99 = 0;
+
+find(value99);
