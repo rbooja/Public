@@ -1,0 +1,27 @@
+
+//_vwap_bands
+
+value1 = value1[1] + 1;
+value2 = value2[1] + (((high + low + close) / 3.0) * volume);
+value3 = value3[1] + volume;
+
+if (sdate[1] != sdate) then {
+  value1 = 1;
+  value2 = ((high + low + close) / 3.0) * volume;
+  value3 = volume;
+}
+
+value10 = value2 / value3;
+
+value4 = 0.0;
+for value5 = 0 to value1 - 1 {
+   value4 = value4 + pow(close[value5] - value10, 2);
+}
+value4 = squareroot(value4 / value1);
+
+value11 = value10 + value4;
+value12 = value10 - value4;
+
+plot1(value10, "vwap");
+plot2(value11, "up");
+plot3(value12, "dn");
