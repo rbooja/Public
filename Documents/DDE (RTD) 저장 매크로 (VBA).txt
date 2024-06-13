@@ -1,0 +1,25 @@
+Option Explicit
+Private temp As Long
+Private path As String
+Private Sub Worksheet_Calculate()
+    'Application.EnableEvents = False
+    Call Function1(2)
+    Call Function1(3)
+    'Application.EnableEvents = True
+End Sub
+Function Function1(num As Integer)
+    '1:종목, 2:가격, 3:거래량, 4:이전 거래량
+    temp = Cells(num, 3).Value
+    If (Cells(num, 4).Value = temp) Then
+        Exit Function
+    End If
+    Cells(num, 4) = temp
+    path = ThisWorkbook.path & "\" & Cells(num, 1).Value
+    If (Len(Dir(path, vbDirectory)) <= 0) Then
+        MkDir (path)
+    End If
+    path = path & "\" & Format(Date, "yyyy-mm-dd") & "." & Cells(num, 1).Value
+    Open path For Append As #1
+        Print #1, Cells(1, 1).Value & "," & Cells(num, 2).Value & "," & Cells(num, 3).Value
+    Close #1
+End Function
