@@ -1,0 +1,14 @@
+
+//_vwap
+
+value1 = value1[1] + (((high + low + close) / 3.0) * volume);
+value2 = value2[1] + volume;
+
+if (dayvolume[1] > dayvolume) then {
+  value1 = ((high + low + close) / 3.0) * volume;
+  value2 = volume;
+}
+
+value3 = value1 / value2;
+
+plot1(value3, "vwap");
