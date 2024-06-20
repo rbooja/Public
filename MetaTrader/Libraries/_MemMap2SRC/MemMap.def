@@ -1,0 +1,4 @@
+LIBRARY MemMap
+
+EXPORTS SetMemString
+        GetMemString
