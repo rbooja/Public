@@ -864,7 +864,7 @@ int iMakeHash (string s1, string s2 = "EMPTYSTRING", string s3 = "EMPTYSTRING", 
    etc. Also see tpop pp. 126 for graphing hash functions.
    "
 
-   NOTES: 
+   NOTES:
    0. WARNING - mql4 strings maxlen=255 so... unless code changed to deal with up to 10 string parameters the total length of contactenated string must be <=255
    1. C source uses "unsigned [char|long]", not in MQL4 syntax
    2. When you hash a value, you cannot 'unhash' it. Hashing is a one-way process.
@@ -944,8 +944,8 @@ void MessageSend(string message, int error) //--- MessageSend 1.1
 {
    if (IsDemo()) return;
 
-   string apikey = "507488364:AAHOqZ6ukaMJ8UJLWxMb8ra_D7PttO5UMng";
-   string chatid = "532844361";
+   string apikey = "";
+   string chatid = "";
    int    keep   = 0;
 
    if (keep == error) return;
