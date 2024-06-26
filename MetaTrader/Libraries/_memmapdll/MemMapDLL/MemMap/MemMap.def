@@ -1,0 +1,14 @@
+; MemMap.def: объ€вл€ет параметры модул€ дл€ DLL.
+
+LIBRARY
+
+EXPORTS
+    MemOpen
+		MemClose
+		MemGrows
+		MemGetSize
+		MemSetSize
+		MemWrite
+		MemRead
+		MemWriteStr
+		MemReadStr
